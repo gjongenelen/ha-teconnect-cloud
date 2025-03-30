@@ -4,10 +4,10 @@ from homeassistant.components.sensor import SensorEntity
 from .teconnect_api import TEConnectAPI
 from .const import DOMAIN
 
-SCAN_INTERVAL = timedelta(minutes=5)
+SCAN_INTERVAL = timedelta(minutes=1)
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    api = TEConnectAPI(entry.data["email"], entry.data["password"])
+    api = TEConnectAPI(entry.data["email"], entry.data["password"], entry.data["device_token"])
     data = await hass.async_add_executor_job(api.fetch_data)
     entities = [
         TEConnectSensor(api, "Current Temperature", lambda d: d["data"]["temps"]["Probe_1"] / 10, "temp_probe_1", "°C"),

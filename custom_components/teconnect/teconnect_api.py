@@ -8,21 +8,9 @@ class TEConnectAPI:
         self.auth_token = None
         self.device_token = None
 
-    async def login(self):
-        await asyncio.get_event_loop().run_in_executor(None, self._login_sync)
-
-    def _login_sync(self):
-        response = requests.post(
-            "https://teco.thingscloud.it/api/mobile/login",
-            json={"email": self.email, "password": self.password},
-            headers={"Content-Type": "application/json"}
-        )
-        response.raise_for_status()
-        self.device_token = response.json().get("device_token")
-
     async def authenticate(self):
         if not self.device_token:
-            await self.login()
+            raise ValueError("Device token not set. It should be provided via config.")
         await asyncio.get_event_loop().run_in_executor(None, self._authenticate_sync)
 
     def _authenticate_sync(self):
