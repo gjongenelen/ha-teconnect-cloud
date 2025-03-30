@@ -68,6 +68,7 @@ class TEConnectClimate(ClimateEntity):
         self._attr_temperature_unit = unit
         self._attr_hvac_mode = HVACMode.OFF
         self._attr_supported_features = ClimateEntityFeature.TARGET_TEMPERATURE
+        self._attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT_COOL]
 
     async def async_set_temperature(self, **kwargs):
         temperature = kwargs.get("temperature")
