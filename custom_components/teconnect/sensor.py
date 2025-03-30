@@ -18,7 +18,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
         TEConnectSensor(api, "Hysteresis", lambda d: d["data"][0]["params"]["Hy"] / 10, "hysteresis", "°C"),
         TEConnectClimate(api, "°C"),
         TEConnectBinarySensor(api, "Defrost", lambda d: d["data"][0]["status"]["Defrost"] == 1, "defrost_active"),
-        TEConnectBinarySensor(api, "Cooling", lambda d: d["data"][0]["status"]["Cooling"] == 1, "cooling_active")
+        TEConnectBinarySensor(api, "Cooling", lambda d: d["data"][0]["status"]["Cooling"] == 1, "cooling_active"),
+        TEConnectBinarySensor(api, "Heating", lambda d: d["data"][0]["status"]["Aux"] == 1, "heating_active")
     ]
     async_add_entities(entities, True)
 
@@ -62,13 +63,14 @@ class TEConnectSensor(SensorEntity):
 
 class TEConnectClimate(ClimateEntity):
     def __init__(self, api, unit):
+        super().__init__()
         self.api = api
         self._attr_unique_id = None
         self._attr_name = "TEConnect Climate"
         self._attr_temperature_unit = unit
         self._attr_hvac_mode = HVACMode.OFF
         self._attr_supported_features = ClimateEntityFeature.TARGET_TEMPERATURE
-        self._attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT_COOL]
+        self._attr_hvac_modes = []
 
     async def async_set_temperature(self, **kwargs):
         temperature = kwargs.get("temperature")
