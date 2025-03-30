@@ -1,4 +1,5 @@
 import requests
+import asyncio
 
 class TEConnectAPI:
     def __init__(self, email, password):
@@ -7,7 +8,10 @@ class TEConnectAPI:
         self.auth_token = None
         self.device_token = None
 
-    def login(self):
+    async def login(self):
+        await asyncio.get_event_loop().run_in_executor(None, self._login_sync)
+
+    def _login_sync(self):
         response = requests.post(
             "https://teco.thingscloud.it/api/mobile/login",
             json={"email": self.email, "password": self.password},
@@ -16,9 +20,12 @@ class TEConnectAPI:
         response.raise_for_status()
         self.device_token = response.json().get("device_token")
 
-    def authenticate(self):
+    async def authenticate(self):
         if not self.device_token:
-            self.login()
+            await self.login()
+        await asyncio.get_event_loop().run_in_executor(None, self._authenticate_sync)
+
+    def _authenticate_sync(self):
         response = requests.post(
             "https://teco.thingscloud.it/api/mobile/authenticate",
             json={"email": self.email, "token": self.device_token},
@@ -27,9 +34,12 @@ class TEConnectAPI:
         response.raise_for_status()
         self.auth_token = response.json().get("token")
 
-    def fetch_data(self):
+    async def fetch_data(self):
         if not self.auth_token:
-            self.authenticate()
+            await self.authenticate()
+        return await asyncio.get_event_loop().run_in_executor(None, self._fetch_data_sync)
+
+    def _fetch_data_sync(self):
         response = requests.get(
             "https://teco.thingscloud.it/api/devices/846",
             headers={
