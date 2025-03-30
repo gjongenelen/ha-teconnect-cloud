@@ -64,7 +64,7 @@ class TEConnectClimate(ClimateEntity):
     def __init__(self, api, unique_id, unit):
         self.api = api
         self._unique_id = unique_id
-        self._unit = unit
+        self._attr_temperature_unit = unit
         self._current_temperature = None
         self._target_temperature = None
         self._hvac_mode = HVACMode.OFF
