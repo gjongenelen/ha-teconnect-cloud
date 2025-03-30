@@ -1,0 +1,7 @@
+{
+  "name": "TEConnect",
+  "content_in_root": false,
+  "domains": ["teconnect"],
+  "country": "NL",
+  "homeassistant": "2023.0.0"
+}

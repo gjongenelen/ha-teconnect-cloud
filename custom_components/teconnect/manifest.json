@@ -1,0 +1,9 @@
+{
+  "domain": "teconnect",
+  "name": "TEConnect",
+  "version": "1.0.0",
+  "documentation": "https://github.com/gjongenelen/ha-teconnect-cloud",
+  "dependencies": [],
+  "codeowners": ["@gjongenelen"],
+  "requirements": ["requests"]
+}
