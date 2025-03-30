@@ -49,3 +49,20 @@ class TEConnectAPI:
         )
         response.raise_for_status()
         return response.json()
+
+    async def set_temperature(self, device_id: int, value: float):
+        if not self.auth_token:
+            await self.authenticate()
+        await asyncio.get_event_loop().run_in_executor(None, self._set_temperature_sync, device_id, value)
+
+    def _set_temperature_sync(self, device_id: int, value: float):
+        setpoint = int(value * 10)
+        response = requests.post(
+            f"https://teco.thingscloud.it/api/devices/{device_id}/setpoint",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.auth_token}"
+            },
+            json={"setpoint": setpoint}
+        )
+        response.raise_for_status()
