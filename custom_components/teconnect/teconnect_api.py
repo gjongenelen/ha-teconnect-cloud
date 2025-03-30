@@ -2,11 +2,11 @@ import requests
 import asyncio
 
 class TEConnectAPI:
-    def __init__(self, email, password):
+    def __init__(self, email, password, device_token):
         self.email = email
         self.password = password
         self.auth_token = None
-        self.device_token = None
+        self.device_token = device_token
 
     async def login(self):
         await asyncio.get_event_loop().run_in_executor(None, self._login_sync)
@@ -41,7 +41,7 @@ class TEConnectAPI:
 
     def _fetch_data_sync(self):
         response = requests.get(
-            "https://teco.thingscloud.it/api/devices/846",
+            "https://teco.thingscloud.it/api/devices",
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.auth_token}"

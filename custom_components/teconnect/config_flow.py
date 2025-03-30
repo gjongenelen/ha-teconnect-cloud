@@ -9,7 +9,7 @@ class TEConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None):
         errors = {}
         if user_input is not None:
-            api = TEConnectAPI(user_input["email"], user_input["password"])
+            api = TEConnectAPI(user_input["email"], user_input["password"], None)
             await api.login()
             return self.async_create_entry(
                 title="TEConnect",
