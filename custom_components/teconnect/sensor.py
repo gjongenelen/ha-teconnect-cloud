@@ -2,7 +2,7 @@ from datetime import timedelta
 import logging
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.components.climate.const import HVAC_MODE_HEAT, HVAC_MODE_OFF, SUPPORT_TARGET_TEMPERATURE
+from homeassistant.components.climate.const import HVACMode, ClimateEntityFeature
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from .teconnect_api import TEConnectAPI
 from .const import DOMAIN
@@ -67,7 +67,7 @@ class TEConnectClimate(ClimateEntity):
         self._unit = unit
         self._current_temperature = None
         self._target_temperature = None
-        self._hvac_mode = HVAC_MODE_OFF
+        self._hvac_mode = HVACMode.OFF
 
     @property
     def name(self):
@@ -91,7 +91,7 @@ class TEConnectClimate(ClimateEntity):
 
     @property
     def supported_features(self):
-        return SUPPORT_TARGET_TEMPERATURE
+        return ClimateEntityFeature.TARGET_TEMPERATURE
 
     async def async_set_temperature(self, **kwargs):
         temperature = kwargs.get("temperature")
@@ -103,7 +103,7 @@ class TEConnectClimate(ClimateEntity):
         data = await self.api.fetch_data()
         self._current_temperature = data["data"][0]["temps"]["Probe_1"] / 10
         self._target_temperature = data["data"][0]["params"]["SEt"] / 10
-        self._hvac_mode = HVAC_MODE_HEAT if data["data"][0]["status"]["OnOff"] == 1 else HVAC_MODE_OFF
+        self._hvac_mode = HVACMode.HEAT_COOL if data["data"][0]["status"]["OnOff"] == 1 else HVACMode.OFF
 
 class TEConnectBinarySensor(BinarySensorEntity):
     def __init__(self, api, name, value_fn, unique_id):
