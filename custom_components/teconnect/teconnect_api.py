@@ -7,6 +7,7 @@ class TEConnectAPI:
         self.password = password
         self.auth_token = None
         self.device_token = device_token
+        self._auth_time = None
 
     async def login(self):
         await asyncio.get_event_loop().run_in_executor(None, self._login_sync)
@@ -24,6 +25,7 @@ class TEConnectAPI:
         if not self.device_token:
             raise ValueError("Device token not set. It should be provided via config.")
         await asyncio.get_event_loop().run_in_executor(None, self._authenticate_sync)
+        self._auth_time = asyncio.get_event_loop().time()
 
     def _authenticate_sync(self):
         response = requests.post(
@@ -35,7 +37,7 @@ class TEConnectAPI:
         self.auth_token = response.json().get("token")
 
     async def fetch_data(self):
-        if not self.auth_token:
+        if not self.auth_token or (self._auth_time and asyncio.get_event_loop().time() - self._auth_time > 3600):
             await self.authenticate()
         return await asyncio.get_event_loop().run_in_executor(None, self._fetch_data_sync)
 
@@ -51,7 +53,7 @@ class TEConnectAPI:
         return response.json()
 
     async def set_temperature(self, device_id: int, value: float):
-        if not self.auth_token:
+        if not self.auth_token or (self._auth_time and asyncio.get_event_loop().time() - self._auth_time > 3600):
             await self.authenticate()
         await asyncio.get_event_loop().run_in_executor(None, self._set_temperature_sync, device_id, value)
 
