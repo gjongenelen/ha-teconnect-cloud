@@ -53,7 +53,7 @@ class TEConnectAPI:
         return response.json()
 
     async def set_temperature(self, device_id: int, value: float):
-        if not self.auth_token or (self._auth_time and asyncio.get_event_loop().time() - self._auth_time > 3600):
+        if not self.auth_token or (self._auth_time and asyncio.get_event_loop().time() - self._auth_time > (3600 * 6)):
             await self.authenticate()
         await asyncio.get_event_loop().run_in_executor(None, self._set_temperature_sync, device_id, value)
 
