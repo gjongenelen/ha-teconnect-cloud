@@ -1,9 +1,10 @@
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import HVACMode, ClimateEntityFeature
+from .teconnect_api import TEConnectAPI
 from .const import DOMAIN
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    api = hass.data[DOMAIN][entry.entry_id]
+    api = TEConnectAPI(entry.data["email"], entry.data["password"], entry.data["device_token"])
     async_add_entities([TEConnectClimate(api, "Climate", "climate_control")])
 
 class TEConnectClimate(ClimateEntity):
