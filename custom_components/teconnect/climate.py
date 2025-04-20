@@ -72,11 +72,12 @@ class TEConnectClimate(ClimateEntity):
             self._hvac_mode = HVACMode.OFF
         self._current_temperature = data["data"][0]["temps"]["Probe_1"] / 10
         self._target_temperature = data["data"][0]["params"]["SEt"] / 10
-
-    async def async_set_hvac_mode(self, hvac_mode):
-        self._hvac_mode = hvac_mode
-
-    async def async_set_temperature(self, **kwargs):
-        temp = kwargs.get("temperature")
-        if temp is not None:
-            self._target_temperature = temp
+    #
+    # async def async_set_hvac_mode(self, hvac_mode):
+    #     self._hvac_mode = hvac_mode
+    #
+    # async def async_set_temperature(self, **kwargs):
+    #     temp = kwargs.get("temperature")
+    #     if temp is not None:
+    #         # await self.api.set_temperature(1, temp)
+    #         self._target_temperature = temp
