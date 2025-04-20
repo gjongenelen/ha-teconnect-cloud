@@ -1,7 +1,11 @@
+from datetime import timedelta
+
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import HVACMode, ClimateEntityFeature
 from .teconnect_api import TEConnectAPI
 from .const import DOMAIN
+
+SCAN_INTERVAL = timedelta(seconds=30)
 
 async def async_setup_entry(hass, entry, async_add_entities):
     api = TEConnectAPI(entry.data["email"], entry.data["password"], entry.data["device_token"])
