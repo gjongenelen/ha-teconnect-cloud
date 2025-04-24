@@ -1,17 +1,19 @@
-# TEConnect (Home Assistant Custom Component)
+# ha-teconnect
 
-This integration adds support for TECO chillers via the cloud API from teco.thingscloud.it.
+Integrate your TECO aquarium chiller (and heater) into Home-assistant
+
+## Install
+Copy contents of custom_components folder to your home-assistant config/custom_components folder or install through HACS. After reboot of Home-Assistant, this integration can be configured through the integration setup UI
+
+## Setup
+1. Login with your Teconnect account
+2. Your devices are retrieved from the cloud
+3. You need to login again (reconfigure integration) if you add a new device to your account
 
 ## Features
-- Read temperature (current and setpoint)
-- Login and device-token based authentication
-- HACS-compatible
-
-## Installation
-1. Add this GitHub repository as a custom repository in HACS (type: integration).
-2. Install via HACS.
-3. Restart Home Assistant.
-4. Add the integration via the UI and enter your email and password.
+- Climate control (get/set target and current temperature)
+- Get/set hysteresis
+- That's it for now... PR's are welcome
 
 ## Requirements
 - Home Assistant 2023.0 or newer
