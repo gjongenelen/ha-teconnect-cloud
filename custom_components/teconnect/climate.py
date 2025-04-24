@@ -1,33 +1,41 @@
-from datetime import timedelta
+import logging
 
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import HVACMode, ClimateEntityFeature
-from .teconnect_api import TEConnectAPI
+
 from .const import DOMAIN
 
-SCAN_INTERVAL = timedelta(seconds=30)
+_LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    api = TEConnectAPI(entry.data["email"], entry.data["password"], entry.data["device_token"])
-    async_add_entities([TEConnectClimate(api, "Climate", "climate_control")])
+    api = hass.data[DOMAIN][entry.entry_id]["api"]
+
+    entities = []
+    for device in entry.data["devices"]:
+        entity = TEConnectClimate(api, "Control", device)
+        hass.data[DOMAIN][entry.entry_id]["entities"].append(entity)
+        entities.append(entity)
+
+    async_add_entities(entities)
+
 
 class TEConnectClimate(ClimateEntity):
-    def __init__(self, api, name, unique_id):
+    def __init__(self, api, name, device):
+        self.device_config = device
         self.api = api
-        self._name = name
-        self._unique_id = unique_id
-        self._hvac_mode = HVACMode.COOL
+
+        self._attr_unique_id = f"{device['serial_number']}"
+        self.name = name
+
         self._target_temperature = None
         self._current_temperature = None
+        self._hvac_mode = HVACMode.OFF
         self._attr_supported_features = ClimateEntityFeature.TARGET_TEMPERATURE
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def unique_id(self):
-        return self._unique_id
+        self._teco_device_id = id
+        self._attr_min_temp = 20
+        self._attr_max_temp = 30
+        self._attr_target_temperature_step = 0.1
 
     @property
     def temperature_unit(self):
@@ -56,28 +64,30 @@ class TEConnectClimate(ClimateEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, "teconnect_device")},
-            "name": "TECOnnect",
+            "identifiers": {(DOMAIN, self.device_config["serial_number"])},
+            "name": self.device_config["name"],
+            "model": self.device_config["model"],
             "manufacturer": "TECO",
-            "model": "Chiller",
         }
 
-    async def async_update(self):
-        data = await self.api.fetch_data()
-        if data["data"][0]["status"]["Aux"] == 1:
+    async def handle_api_data(self, data):
+        data = data.get_for_device(self.device_config["teco_id"])
+
+        if data["status"]["Aux"] == 1:
             self._hvac_mode = HVACMode.HEAT
-        elif data["data"][0]["status"]["Cooling"] == 1:
+        elif data["status"]["Cooling"] == 1:
             self._hvac_mode = HVACMode.COOL
         else:
             self._hvac_mode = HVACMode.OFF
-        self._current_temperature = data["data"][0]["temps"]["Probe_1"] / 10
-        self._target_temperature = data["data"][0]["params"]["SEt"] / 10
-    #
-    # async def async_set_hvac_mode(self, hvac_mode):
-    #     self._hvac_mode = hvac_mode
-    #
-    # async def async_set_temperature(self, **kwargs):
-    #     temp = kwargs.get("temperature")
-    #     if temp is not None:
-    #         # await self.api.set_temperature(1, temp)
-    #         self._target_temperature = temp
+
+        self._current_temperature = data["temps"]["Probe_1"] / 10
+        self._target_temperature = data["params"]["SEt"] / 10
+
+        self.async_write_ha_state()
+
+    async def async_set_temperature(self, **kwargs):
+        temp = kwargs.get("temperature")
+        if temp is not None:
+            await self.api.set_temperature(self.device_config["teco_id"], temp)
+            self._target_temperature = temp
+            self.async_write_ha_state()
