@@ -58,6 +58,8 @@ class TEConnectAPI:
                 return self.auth_token
 
     async def fetch_data(self):
+        await self.ensure_authenticated()
+        
         async with aiohttp.ClientSession() as session:
             async with session.get(
                     "https://teco.thingscloud.it/api/devices",
