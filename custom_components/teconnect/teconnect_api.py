@@ -54,6 +54,7 @@ class TEConnectAPI:
             ) as response:
                 response.raise_for_status()
                 data = await response.json()
+                self._auth_time = asyncio.get_event_loop().time()
                 self.auth_token = data.get("token")
                 return self.auth_token
 
